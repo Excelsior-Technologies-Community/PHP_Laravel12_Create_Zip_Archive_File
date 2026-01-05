@@ -101,6 +101,13 @@ Open in browser:
 ```
 http://localhost:8000/zip
 ```
+---
+## Screenshot
+### http://localhost:8000/zip
+<img width="1585" height="967" alt="image" src="https://github.com/user-attachments/assets/d694d015-1f7d-4b6a-839b-5056a3f147ed" />
+
+<img width="1680" height="967" alt="image" src="https://github.com/user-attachments/assets/2430b52c-3ad2-44b9-bbf4-26249a08f98d" />
+
 
 ---
 
