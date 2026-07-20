@@ -24,6 +24,7 @@ class CreateZipCommand extends Command
             return 1;
         }
 
+        
         $zip = new ZipArchive;
         
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
