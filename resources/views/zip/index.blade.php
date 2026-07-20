@@ -292,6 +292,153 @@
 
             </div>
 
+            <!-- ZIP Actions -->
+
+            <div class="grid lg:grid-cols-3 gap-6 mb-10">
+
+                <!-- Create ZIP From Storage -->
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+
+                    <h2 class="text-xl font-bold mb-4">
+                        <i class="fas fa-folder-open text-blue-600"></i>
+                        Create ZIP From Storage
+                    </h2>
+
+                    <p class="text-gray-500 mb-5">
+                        Download all files from storage/files.
+                    </p>
+
+                    <a href="{{ route('zip.create.from.directory') }}"
+                        class="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-3 rounded-lg">
+
+                        <i class="fas fa-download mr-2"></i>
+
+                        Create ZIP
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- Upload Files -->
+
+                <div class="bg-white rounded-xl shadow-lg p-6">
+
+                    <h2 class="text-xl font-bold mb-4">
+
+                        <i class="fas fa-upload text-green-600"></i>
+
+                        Upload Files
+
+                    </h2>
+
+                    <form action="{{ route('zip.create.from.upload') }}"
+                        method="POST"
+                        enctype="multipart/form-data">
+
+                        @csrf
+
+                        <input
+                            type="file"
+                            name="uploaded_files[]"
+                            multiple
+                            class="border rounded-lg p-3 w-full mb-4">
+
+                        <button
+                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg">
+
+                            <i class="fas fa-file-archive mr-2"></i>
+
+                            Upload & ZIP
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+
+                <!-- Storage Files -->
+
+<div class="bg-white rounded-xl shadow-lg p-6">
+
+    <h2 class="text-xl font-bold mb-4">
+
+        <i class="fas fa-file text-orange-600"></i>
+
+        Storage Files
+
+    </h2>
+
+
+    <!-- Selected Preview -->
+
+    <div id="selected-preview"
+        class="hidden mb-5 bg-orange-50 border border-orange-200 rounded-xl p-4">
+
+
+        <h3 class="font-bold text-orange-700 mb-3">
+
+            <i class="fas fa-check-circle"></i>
+
+            Selected Files Preview
+
+        </h3>
+
+
+        <div class="grid grid-cols-2 gap-3 text-sm">
+
+
+            <div>
+
+                <span class="text-gray-600">
+                    Files:
+                </span>
+
+                <span id="selected-count"
+                    class="font-bold text-gray-800">
+                    0
+                </span>
+
+            </div>
+
+
+
+            <div>
+
+                <span class="text-gray-600">
+                    Size:
+                </span>
+
+                <span id="selected-size"
+                    class="font-bold text-gray-800">
+                    0 KB
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <div id="storage-files">
+
+        Loading...
+
+    </div>
+
+
+</div>
+
+            </div>
+
             <!-- ==========================================
      ZIP HISTORY
 ========================================== -->
@@ -468,25 +615,49 @@
 
                                 <td class="px-6 py-4 text-center">
 
-                                    <form
-                                        action="{{ route('zip.history.destroy',$history->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Delete this ZIP history?')">
+                                    <div class="flex justify-center gap-2">
 
-                                        @csrf
-                                        @method('DELETE')
 
-                                        <button
-                                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                                        <!-- Download ZIP -->
 
-                                            <i class="fas fa-trash"></i>
+                                        <a href="{{ route('zip.history.download',$history->id) }}"
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
 
-                                        </button>
+                                            <i class="fas fa-download"></i>
 
-                                    </form>
+                                        </a>
+
+
+
+                                        <!-- Delete History -->
+
+                                        <form
+                                            action="{{ route('zip.history.destroy',$history->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Delete this ZIP history?')">
+
+
+                                            @csrf
+
+                                            @method('DELETE')
+
+
+                                            <button
+                                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+
+
+                                                <i class="fas fa-trash"></i>
+
+
+                                            </button>
+
+
+                                        </form>
+
+
+                                    </div>
 
                                 </td>
-
                             </tr>
 
                             @endforeach
@@ -530,6 +701,287 @@
         </div>
     </div>
 
+<script>
+
+fetch('/zip/list-files')
+
+.then(response => response.json())
+
+.then(data => {
+
+
+    let html = '';
+
+
+
+    if(data.files.length == 0){
+
+
+        html = `
+
+            <p class="text-gray-500">
+
+                No files found.
+
+            </p>
+
+        `;
+
+
+    }else{
+
+
+        html += `
+
+        <form action="/zip/create-from-files"
+              method="POST"
+              id="zip-form">
+
+
+        @csrf
+
+
+        <div class="max-h-72 overflow-y-auto">
+
+
+        `;
+
+
+
+        data.files.forEach(function(file){
+
+
+            html += `
+
+
+            <label class="flex items-center justify-between mb-3 
+                    bg-gray-50 p-3 rounded-lg hover:bg-orange-50">
+
+
+                <div class="flex items-center">
+
+
+                    <input type="checkbox"
+
+                        name="selected_files[]"
+
+                        value="${file.path}"
+
+                        data-size="${file.size}"
+
+                        class="file-checkbox mr-3">
+
+
+                    <span>
+
+                        ${file.name}
+
+                    </span>
+
+
+                </div>
+
+
+
+                <span class="text-xs text-gray-500">
+
+                    ${file.size}
+
+                </span>
+
+
+
+            </label>
+
+
+            `;
+
+
+        });
+
+
+
+        html += `
+
+
+        </div>
+
+
+
+        <button
+
+            class="mt-4 w-full bg-orange-600 
+            hover:bg-orange-700 text-white 
+            px-4 py-3 rounded-lg">
+
+
+            <i class="fas fa-file-archive mr-2"></i>
+
+            Create ZIP
+
+
+        </button>
+
+
+        </form>
+
+
+        `;
+
+
+    }
+
+
+
+    document.getElementById('storage-files').innerHTML = html;
+
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Selected Files Preview
+    |--------------------------------------------------------------------------
+    */
+
+
+    const checkboxes = document.querySelectorAll('.file-checkbox');
+
+
+    const preview = document.getElementById('selected-preview');
+
+    const countBox = document.getElementById('selected-count');
+
+    const sizeBox = document.getElementById('selected-size');
+
+
+
+    checkboxes.forEach(function(checkbox){
+
+
+        checkbox.addEventListener('change', function(){
+
+
+
+            let selectedCount = 0;
+
+            let totalSize = 0;
+
+
+
+            checkboxes.forEach(function(item){
+
+
+                if(item.checked){
+
+
+                    selectedCount++;
+
+
+                    let sizeText = item.dataset.size;
+
+
+                    totalSize += convertSizeToKB(sizeText);
+
+
+                }
+
+
+            });
+
+
+
+            if(selectedCount > 0){
+
+
+                preview.classList.remove('hidden');
+
+
+            }else{
+
+
+                preview.classList.add('hidden');
+
+
+            }
+
+
+
+            countBox.innerHTML = selectedCount;
+
+
+            sizeBox.innerHTML = formatSize(totalSize);
+
+
+
+        });
+
+
+
+    });
+
+
+
+});
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Convert File Size To KB
+|--------------------------------------------------------------------------
+*/
+
+function convertSizeToKB(size){
+
+
+    let value = parseFloat(size);
+
+
+
+    if(size.includes('MB')){
+
+        return value * 1024;
+
+    }
+
+
+    return value;
+
+
+}
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Format Size
+|--------------------------------------------------------------------------
+*/
+
+function formatSize(kb){
+
+
+    if(kb >= 1024){
+
+
+        return (kb / 1024).toFixed(2) + ' MB';
+
+
+    }
+
+
+    return kb.toFixed(2) + ' KB';
+
+
+}
+
+
+</script>
 </body>
 
 </html>

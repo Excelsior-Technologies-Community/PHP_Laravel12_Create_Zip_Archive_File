@@ -16,6 +16,7 @@ class ZipHistory extends Model
         'zip_name',
         'total_files',
         'zip_size',
+        'zip_path',
         'source',
         'status',
         'remarks',
