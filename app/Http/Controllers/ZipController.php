@@ -99,10 +99,31 @@ class ZipController extends Controller
             'zip_name'    => $zipName,
             'total_files' => $totalFiles,
             'zip_size'    => $size,
+            'zip_path' => $zipPath,
             'source'      => $source,
             'status'      => $status,
             'remarks'     => $remarks,
         ]);
+    }
+
+    public function downloadHistory($id)
+    {
+        $history = ZipHistory::findOrFail($id);
+
+
+        if (!File::exists($history->zip_path)) {
+
+            return back()->with(
+                'error',
+                'ZIP file not found. Please create ZIP again.'
+            );
+        }
+
+
+        return response()->download(
+            $history->zip_path,
+            $history->zip_name
+        );
     }
 
     /**
@@ -112,7 +133,14 @@ class ZipController extends Controller
     {
         $history = ZipHistory::findOrFail($id);
 
+
+        if (File::exists($history->zip_path)) {
+            File::delete($history->zip_path);
+        }
+
+
         $history->delete();
+
 
         return redirect()
             ->route('zip.index')
@@ -174,9 +202,7 @@ class ZipController extends Controller
                 'ZIP created from selected storage files.'
             );
 
-            return response()
-                ->download($zipPath)
-                ->deleteFileAfterSend(true);
+            return response()->download($zipPath);
         }
 
         // Save Failed History
@@ -244,9 +270,7 @@ class ZipController extends Controller
                 'ZIP created from selected files.'
             );
 
-            return response()
-                ->download($zipPath)
-                ->deleteFileAfterSend(true);
+            return response()->download($zipPath);
         }
 
         // Save failed history
@@ -340,9 +364,7 @@ class ZipController extends Controller
                 }
             }
 
-            return response()
-                ->download($zipPath)
-                ->deleteFileAfterSend(true);
+            return response()->download($zipPath);
         }
 
         // Save failed history
@@ -437,9 +459,7 @@ class ZipController extends Controller
                 'ZIP created from storage directory.'
             );
 
-            return response()
-                ->download($zipPath)
-                ->deleteFileAfterSend(true);
+            return response()->download($zipPath);
         }
 
         // Save failed history

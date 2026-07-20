@@ -50,6 +50,8 @@ Route::controller(ZipController::class)->group(function () {
     Route::get('/zip/list-files', 'listFiles')
         ->name('zip.list.files');
 
+    Route::get('/zip/history/download/{id}', [ZipController::class, 'downloadHistory'])
+        ->name('zip.history.download');
     /*
     |--------------------------------------------------------------------------
     | Delete History

@@ -22,7 +22,7 @@ class SampleFilesSeeder extends Seeder
         ];
 
         foreach ($sampleFiles as $filename => $content) {
-            Storage::put('public/files/' . $filename, $content);
+          Storage::disk('public')->put('files/' . $filename, $content);
         }
 
         $this->command->info('Sample files created successfully!');
